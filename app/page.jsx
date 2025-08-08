@@ -25,8 +25,17 @@ export default function Home() {
   const [reservations, setReservations] = useState([]);
 
   useEffect(() => {
+    // 取得目前登入的使用者
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
 
+    // 監聽登入狀態變化
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN") {
+        setUser(session.user);
+      }
+    });
+
+    // 初始載入預約資料
     supabase
       .from("reservations")
       .select("*")
@@ -34,14 +43,20 @@ export default function Home() {
         setReservations(data || []);
       });
 
+    // Realtime 資料更新
     const channel = supabase
       .channel("realtime reservations")
       .on("postgres_changes", { event: "*", schema: "public", table: "reservations" }, () => {
-        supabase.from("reservations").select("*").then(({ data }) => setReservations(data || []));
+        supabase
+          .from("reservations")
+          .select("*")
+          .then(({ data }) => setReservations(data || []));
       })
       .subscribe();
 
+    // 清除監聽器
     return () => {
+      listener?.subscription.unsubscribe();
       supabase.removeChannel(channel);
     };
   }, []);
