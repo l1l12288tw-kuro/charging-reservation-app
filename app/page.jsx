@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,8 +5,8 @@ import { createClient } from "@supabase/supabase-js";
 import dayjs from "dayjs";
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
 const TIME_SLOTS = [
@@ -107,8 +106,9 @@ export default function Home() {
                       ? handleCancel(day.format("YYYY-MM-DD"), slot)
                       : handleReserve(day.format("YYYY-MM-DD"), slot)
                   }
-                  className={\`w-full my-1 p-1 rounded border
-                    \${res ? (isMine ? "bg-green-300" : "bg-gray-300") : "bg-white"}\`}
+                  className={`w-full my-1 p-1 rounded border ${
+                    res ? (isMine ? "bg-green-300" : "bg-gray-300") : "bg-white"
+                  }`}
                 >
                   {slot} {res ? (isMine ? "（我預約）" : "（已預約）") : ""}
                 </button>
